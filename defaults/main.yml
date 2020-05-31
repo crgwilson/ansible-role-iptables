@@ -1,0 +1,63 @@
+---
+# Should the mangle table appear in the config?
+iptables_configure_mangle: "{{ iptables_mangle_rules is defined }}"
+iptables_mangle_policy:
+  PREROUTING: ACCEPT
+  INPUT: ACCEPT
+  FORWARD: ACCEPT
+  OUTPUT: ACCEPT
+  POSTROUTING: ACCEPT
+
+# Raw IPTables rules to stick in the mangle table
+iptables_mangle_rules: []
+
+# Should the filter table appear in the config?
+iptables_configure_filter: true
+iptables_filter_policy:
+  INPUT: ACCEPT
+  FORWARD: ACCEPT
+  OUTPUT: ACCEPT
+
+# Enable / Disable some canned filter rules
+
+# Accept traffic from the loopback interface
+iptables_filter_accept_loopback: true
+# Drop packets with invalid state
+iptables_filter_enforce_valid_state: true
+# Drop packets from the loopback address that didn't come from the loopback interface
+iptables_filter_drop_spoofed_loopback: true
+# Limits the types of icmp traffic to respond to
+iptables_filter_icmp: true
+# Drops invalid tcp packets and prevents syn flood attacks
+iptables_filter_enforce_valid_tcp: true
+
+# Open a list of ports
+# iptables_filter_open_ports:
+#   - 22
+#   - 123
+#   - 53
+iptables_filter_open_ports: []
+
+# Raw IPTables rules to stick in the filter table
+# iptables_filter_rules:
+#   - '-A INPUT -i eth0 -j ACCEPT'
+iptables_filter_rules: []
+
+# Should the nat table appear in the config?
+iptables_configure_nat: "{{ iptables_nat_rules is defined }}"
+iptables_nat_policy:
+  PREROUTING: ACCEPT
+  POSTROUTING: ACCEPT
+  OUTPUT: ACCEPT
+
+# Raw IPTables rules to stick in the nat table
+# iptables_nat_rules:
+#   - '-N NATMASQUERADE'
+#   - '-A NATMASQUERADE -o eth0 -j MASQUERADE'
+#   - '-A NATMASQUERADE -o eth1 -j MASQUERADE'
+#   - '-A POSTROUTING -s 192.168.1.0/24 -j NATMASQUERADE'
+#   - '-A POSTROUTING -d 192.168.1.0/24 -j NATMASQUERADE'
+iptables_nat_rules: []
+
+iptables_service_state: started
+iptables_service_enabled: true

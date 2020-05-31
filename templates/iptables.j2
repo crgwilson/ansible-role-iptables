@@ -1,0 +1,78 @@
+{{ ansible_managed | comment }}
+{% if iptables_configure_mangle %}
+*mangle
+{%   for k, v in iptables_mangle_policy.items() %}
+:{{ k | upper }} {{ v | upper }} [0:0]
+{%   endfor %}
+
+{%   for rule in iptables_mangle_rules %}
+{{ rule }}
+{%   endfor %}
+COMMIT
+{% endif %}
+
+{% if iptables_configure_filter %}
+*filter
+{%   for k, v in iptables_filter_policy.items() %}
+:{{ k | upper }} {{ v | upper }} [0:0]
+{%   endfor %}
+
+# canned chains
+-N STATE_CHECK
+# allow related
+-A STATE_CHECK -m state --state RELATED,ESTABLISHED -j ACCEPT
+# drop invalid
+-A STATE_CHECK -m state --state INVALID -j DROP
+
+-N TCP_CHECK
+# new packets must be syn
+-A TCP_CHECK -m state --state NEW -p tcp ! --syn -j DROP
+# no xmas packets
+-A TCP_CHECK -p tcp --tcp-flags ALL ALL -j DROP
+# no null packets
+-A TCP_CHECK -p tcp --tcp-flags ALL NONE -j DROP
+
+-N ACCEPT_ALL
+-A ACCEPT_ALL -p tcp -j ACCEPT
+-A ACCEPT_ALL -p udp -j ACCEPT
+
+-N ICMP
+-A ICMP -p icmp -m icmp --icmp-type address-mask-request -j DROP
+-A ICMP -p icmp -m icmp --icmp-type timestamp-request -j DROP
+
+{%   if iptables_filter_accept_loopback %}
+-A INPUT -i lo -j ACCEPT
+{%   endif %}
+{%   if iptables_filter_enforce_valid_state %}
+-A INPUT -j STATE_CHECK
+{%   endif %}
+{%   if iptables_filter_drop_spoofed_loopback %}
+-A INPUT -s 127.0.0.0/8 ! -i lo -j DROP
+{%   endif %}
+{%   if iptables_filter_icmp %}
+-A INPUT -p icmp -j ICMP
+{%   endif %}
+{%   if iptables_filter_enforce_valid_tcp %}
+-A INPUT -p tcp -j TCP_CHECK
+{%   endif %}
+{%   for port in iptables_filter_open_ports %}
+-A INPUT --dport {{ port }} -j ACCEPT_ALL
+{%   endfor %}
+{%   for rule in iptables_filter_rules %}
+{{ rule }}
+{%   endfor %}
+COMMIT
+{% endif %}
+
+
+{% if iptables_configure_nat %}
+*nat
+{%   for k, v in iptables_nat_policy.items() %}
+:{{ k | upper }} {{ v | upper }} [0:0]
+{%   endfor %}
+
+{%   for rule in iptables_nat_rules %}
+{{ rule }}
+{%   endfor %}
+COMMIT
+{% endif %}

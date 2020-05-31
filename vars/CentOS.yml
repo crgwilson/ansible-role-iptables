@@ -1,0 +1,4 @@
+---
+iptables_package: iptables-services
+iptables_rules_file: /etc/sysconfig/iptables
+iptables_service: iptables

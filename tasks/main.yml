@@ -1,0 +1,35 @@
+---
+- name: Get OS specific vars
+  include_vars: "{{ ansible_distribution }}.yml"
+
+- name: Install IPTables
+  package:
+    name: "{{ iptables_package }}"
+    state: present
+  notify:
+    - restart iptables
+
+- name: Use legacy IPTables
+  alternatives:
+    name: iptables
+    path: /usr/sbin/iptables-legacy
+  when:
+    - ansible_distribution + ansible_distribution_major_version == 'Debian10' or
+      ansible_distribution + ansible_distribution_major_version == 'CentOS8'
+
+- name: Configure IPTables rules
+  template:
+    src: iptables.j2
+    dest: "{{ iptables_rules_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    validate: iptables-restore --test %s
+  notify:
+    - restart iptables
+
+- name: Manage the IPTables service
+  service:
+    name: "{{ iptables_service }}"
+    enabled: "{{ iptables_service_enabled }}"
+    state: "{{ iptables_service_state }}"
