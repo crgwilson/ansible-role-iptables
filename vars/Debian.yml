@@ -1,4 +1,4 @@
 ---
 iptables_package: iptables-persistent
 iptables_rules_file: /etc/iptables/rules.v4
-iptables_service: iptables-persistent
+iptables_service: netfilter-persistent
