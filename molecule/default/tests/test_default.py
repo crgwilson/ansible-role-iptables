@@ -59,7 +59,7 @@ COMMIT"""
 
 def test_default_service(host):
     if host.system_info.distribution == 'debian':
-        svc = 'iptables-persistent'
+        svc = 'netfilter-persistent'
     else:
         svc = 'iptables'
 
