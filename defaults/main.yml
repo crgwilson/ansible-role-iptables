@@ -1,6 +1,6 @@
 ---
 # Should the mangle table appear in the config?
-iptables_configure_mangle: "{{ iptables_mangle_rules is defined }}"
+iptables_configure_mangle: "{{ iptables_mangle_rules | bool }}"
 iptables_mangle_policy:
   PREROUTING: ACCEPT
   INPUT: ACCEPT
@@ -21,15 +21,15 @@ iptables_filter_policy:
 # Enable / Disable some canned filter rules
 
 # Accept traffic from the loopback interface
-iptables_filter_accept_loopback: true
+iptables_filter_accept_loopback: false
 # Drop packets with invalid state
-iptables_filter_enforce_valid_state: true
+iptables_filter_enforce_valid_state: false
 # Drop packets from the loopback address that didn't come from the loopback interface
-iptables_filter_drop_spoofed_loopback: true
+iptables_filter_drop_spoofed_loopback: false
 # Limits the types of icmp traffic to respond to
-iptables_filter_icmp: true
+iptables_filter_icmp: false
 # Drops invalid tcp packets and prevents syn flood attacks
-iptables_filter_enforce_valid_tcp: true
+iptables_filter_enforce_valid_tcp: false
 
 # Open a list of ports
 # iptables_filter_open_ports:
@@ -44,7 +44,7 @@ iptables_filter_open_ports: []
 iptables_filter_rules: []
 
 # Should the nat table appear in the config?
-iptables_configure_nat: "{{ iptables_nat_rules is defined }}"
+iptables_configure_nat: "{{ iptables_nat_rules | bool }}"
 iptables_nat_policy:
   PREROUTING: ACCEPT
   POSTROUTING: ACCEPT

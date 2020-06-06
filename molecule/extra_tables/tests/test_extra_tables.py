@@ -6,17 +6,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
 
 
-def test_default_packages(host):
-    if host.system_info.distribution == 'debian':
-        pkg = 'iptables-persistent'
-    else:
-        pkg = 'iptables-services'
-
-    p = host.package(pkg)
-    assert p.is_installed
-
-
-def test_default_config(host):
+def test_extra_tables_config(host):
     if host.system_info.distribution == 'debian':
         conf = '/etc/iptables/rules.v4'
     else:
@@ -24,6 +14,16 @@ def test_default_config(host):
 
     f = host.file(conf)
     assert f.is_file
+
+    mangle = """*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+
+COMMIT"""
+    assert mangle in f.content_string
 
     rules = """*filter
 :INPUT ACCEPT [0:0]
@@ -53,16 +53,16 @@ def test_default_config(host):
 -A ICMP -p icmp -m icmp --icmp-type address-mask-request -j DROP
 -A ICMP -p icmp -m icmp --icmp-type timestamp-request -j DROP
 
+-A INPUT -i lo -j ACCEPT
+-A INPUT -j STATE_CHECK
+-A INPUT -s 127.0.0.0/8 ! -i lo -j DROP
+-A INPUT -p tcp -j TCP_CHECK
 COMMIT"""
     assert rules in f.content_string
 
-
-def test_default_service(host):
-    if host.system_info.distribution == 'debian':
-        svc = 'iptables-persistent'
-    else:
-        svc = 'iptables'
-
-    s = host.service(svc)
-    assert s.is_running
-    assert s.is_enabled
+    nat = """*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+"""
+    assert nat in f.content_string

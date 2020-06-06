@@ -1,0 +1,15 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  vars:
+    iptables_configure_mangle: true
+    iptables_configure_nat: true
+    iptables_filter_accept_loopback: true
+    iptables_filter_enforce_valid_state: true
+    iptables_filter_drop_spoofed_loopback: true
+    iptables_filter_enforce_valid_tcp: true
+
+  roles:
+    - role: ansible-role-iptables
